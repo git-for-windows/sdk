@@ -6,8 +6,8 @@ if [ ! -f $iscc ]; then
     iscc="$path/ISCC.exe"
 fi
 
-if [ -f $iscc ]; then
-    $iscc "installer\installer.iss"
+if [ -f "$iscc" ]; then
+    "$iscc" "installer\installer.iss"
 else
     echo "ERROR: Unable to find an Inno Setup installation."
     exit 1

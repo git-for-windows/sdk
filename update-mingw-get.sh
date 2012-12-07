@@ -4,10 +4,10 @@
 limit=500
 
 # Get the download link to the most recent version of mingw-get.
-if [ -f "$(which xz)" ]; then
+if [ -f "$(type -p xz)" ]; then
     ext="\.tar\.xz"
     unpack="tar -xf"
-elif [ -f "$(which unzip)" ]; then
+elif [ -f "$(type -p unzip)" ]; then
     ext="\.zip"
     unpack="unzip -o"
 else
@@ -26,7 +26,8 @@ fi
 
 # Parse the RSS feed for the most recent download link and construct a line with the file name and URL separated by a
 # tab character so we can easily separate it via "cut" later.
-link=$(curl -s http://sourceforge.net/api/file/index/project-id/2435/mtime/desc/limit/$limit/rss |
+url=http://sourceforge.net/api/file/index/project-id/2435/mtime/desc/limit/$limit/rss
+link=$(wget -q -O - $url |
      sed $sed_args "s/<link>(.+(mingw-get-[0-9]+\.[0-9]+-mingw32-.+-bin$ext).+)<\/link>/\2	\1/p" |
      head -1)
 
@@ -41,14 +42,14 @@ mkdir -p root/mingw && cd root/mingw && (
     if [ -n "$url" ]; then
         echo "Downloading $file ..."
         file="../../$file"
-        curl -# -L $url -o $file -R -z $file
+	wget --progress=bar -O $file $url
         $unpack $file
     else
         echo "WARNING: Invalid URL, skipping download of mingw-get."
     fi
 
     if [ -f bin/mingw-get.exe ]; then
-        wine=$(which wine)
+        wine=$(type -p wine)
         if [ $? -eq 0 ]; then
             version=$($wine bin/mingw-get.exe --version 2> /dev/null | grep -m 1 -o -P ".*version.*[^\s]")
         else
