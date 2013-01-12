@@ -1,0 +1,40 @@
+DESCRIPTION="curl is a command line tool for transferring data with URL syntax"
+HOMEPAGE="http://curl.haxx.se"
+SRC_URI="http://curl.haxx.se/download/${PN}-${PV}.tar.gz
+         http://curl.haxx.se/download/${PN}-${PV}.tar.gz.asc"
+
+PKG_NAMES="${PN} ${PN} ${PN} ${PN} ${PN}"
+
+PKG_COMPTYPES="bin doc lic dev dll"
+
+PKG_CONTENTS[0]="bin/*.exe"
+PKG_CONTENTS[1]="share/doc
+                 --exclude share/doc/${PN}/${PV}/COPYING"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/COPYING"
+PKG_CONTENTS[3]="include lib/*.a"
+PKG_CONTENTS[4]="bin/*.dll"
+
+src_compile() {
+  lndirs
+  cd ${B}
+  export CFG="-ipv6 -zlib -sspi -winssl -spnego -ldaps"
+  make mingw32
+}
+
+src_install() {
+ cd ${B}
+
+ # fix naming
+ mv lib/libcurldll.a lib/libcurl.dll.a 
+ 
+ dolib lib/libcurl*.a
+ 
+ dobin lib/libcurl*dll
+ dobin src/curl.exe
+ 
+ insinto /mingw/include/curl
+ doins include/curl/*.h
+ 
+ dodoc docs/{FAQ,MANUAL,THANKS,TODO,curl.pdf,curl-config.pdf}
+}
+
