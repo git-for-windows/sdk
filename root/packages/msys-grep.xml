@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<software-distribution project="mingwGitDevEnv"
+  home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013050300">
+  <package-collection subsystem="msys">
+    <download-host uri="https://dl.bintray.com/content/sschuberth/mingwGitDevEnv/%F?direct" />
+
+    <package name="msys-grep">
+      <affiliate group="MinGW Developer Toolkit" />
+      <description lang="en" title="GNU Grep" >
+        <paragraph>Grep searches one or more input files for lines containing a
+          match to a specified pattern. By default, grep prints the matching
+          lines.
+        </paragraph>
+      </description>
+
+      <licence tarname="grep-%-msys-%-lic.tar.%" />
+      <source tarname="grep-%-msys-%-src.tar.%" />
+
+      <component class="bin">
+        <release tarname="grep-2.14-1-msys-1.0.18-bin.tar.lzma"/>
+      </component>
+
+      <component class="doc">
+        <release tarname="grep-2.14-1-msys-1.0.18-doc.tar.lzma" />
+      </component>
+
+      <component class="lic">
+        <release tarname="grep-2.14-1-msys-1.0.18-lic.tar.lzma" />
+      </component>
+    </package>
+
+  </package-collection>
+</software-distribution>
+<!-- vim: set nocompatible expandtab fileformat=unix textwidth=80 tabstop=2 shiftwidth=2: -->

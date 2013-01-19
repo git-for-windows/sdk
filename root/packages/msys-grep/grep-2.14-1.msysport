@@ -1,0 +1,39 @@
+DESCRIPTION="The grep command searches one or more input files for lines
+             containing a match to a specified pattern. By default,
+             grep prints the matching lines."
+
+HOMEPAGE="http://www.gnu.org/software/grep/"
+SRC_URI="http://ftpmirror.gnu.org/${PN}/${PN}-${PV}.tar.xz
+         http://ftpmirror.gnu.org/${PN}/${PN}-${PV}.tar.xz.sig"
+
+PATCH_URI="add-msys-to-config-guess-and-sub.patch
+           add_wctype-definition.patch"
+
+PKG_NAMES="${PN} ${PN} ${PN}"
+
+PKG_COMPTYPES="bin doc lic"
+
+PKG_CONTENTS[0]="bin lib"
+PKG_CONTENTS[1]="share/doc share/man share/info
+                 --exclude share/doc/${PN}/${PV}/COPYING"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/COPYING"
+
+MGWCONF_ARGS="-enable-threads --enable-perl-regexp"
+CPPFLAGS+=" -DEILSEQ=42"
+
+src_compile() {
+  cd ${B}
+  mgwconf
+  mgwmake
+}
+
+src_test() {
+  cd ${B}
+  mgwmake check-expensive
+}
+
+src_install() {
+  cd ${B}
+  mgwinstall
+}
+

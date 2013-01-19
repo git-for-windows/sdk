@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013021400">
+<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013050300">
 
   <!-- This is the master package catalogue for the mingwGitDevEnv project -->
 
@@ -10,8 +10,10 @@
   <package-list catalogue="mingw32-tcl" />
   <package-list catalogue="mingw32-tk" />
   <package-list catalogue="mingw32-unzip" />
+  <package-list catalogue="msys-grep" />
   <package-list catalogue="msys-openssh" />
   <package-list catalogue="msys-openssl" />
+  <package-list catalogue="msys-pcre" />
 
 </software-distribution>
 <!-- vim: set nocompatible expandtab fileformat=unix textwidth=80 tabstop=2 shiftwidth=2: -->

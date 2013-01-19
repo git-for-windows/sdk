@@ -108,6 +108,9 @@ const
                         + 'msys-rsync '
                         + 'msys-vim '
                         + 'msys-zlib '
+                        + 'msys-cvs '
+
+                        + 'mingw32-gcc-g++ '
 
                         // Our own packages:
                         + 'msys-libopenssl '

@@ -1,0 +1,11 @@
+--- pcre-8.30/configure.ac.orig	2012-02-04 16:55:18 +0400
++++ pcre-8.30/configure.ac	2012-09-04 08:42:41 +0400
+@@ -745,7 +745,7 @@
+ NO_UNDEFINED=
+ EXPORT_ALL_SYMBOLS=
+ case $host_os in
+-  cygwin* | mingw* )
++  cygwin* | mingw* | msys* )
+     if test X"$enable_shared" = Xyes; then
+       NO_UNDEFINED="-no-undefined"
+       EXPORT_ALL_SYMBOLS="-Wl,--export-all-symbols"
