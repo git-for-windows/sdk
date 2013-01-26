@@ -1,0 +1,49 @@
+List the compiled-in hardware support when passed the -a flag.
+
+--- openssl-0.9.7-beta5/apps/version.c	2002-12-03 11:34:28.000000000 -0500
++++ openssl-0.9.7-beta5/apps/version.c	2002-12-11 19:29:10.000000000 -0500
+@@ -130,6 +130,7 @@
+ #ifndef OPENSSL_NO_BF
+ # include <openssl/blowfish.h>
+ #endif
++#include <openssl/engine.h>
+ 
+ #undef PROG
+ #define PROG	version_main
+@@ -139,7 +140,7 @@
+ int MAIN(int argc, char **argv)
+ 	{
+ 	int i,ret=0;
+-	int cflags=0,version=0,date=0,options=0,platform=0,dir=0;
++	int cflags=0,version=0,date=0,options=0,platform=0,dir=0,engines=0;
+ 
+ 	apps_startup();
+ 
+@@ -163,7 +164,7 @@
+ 		else if (strcmp(argv[i],"-d") == 0)
+ 			dir=1;
+ 		else if (strcmp(argv[i],"-a") == 0)
+-			date=version=cflags=options=platform=dir=1;
++			date=version=cflags=options=platform=dir=engines=1;
+ 		else
+ 			{
+ 			BIO_printf(bio_err,"usage:version -[avbofpd]\n");
+@@ -198,6 +199,18 @@
+ 		}
+ 	if (cflags)  printf("%s\n",SSLeay_version(SSLEAY_CFLAGS));
+ 	if (dir)  printf("%s\n",SSLeay_version(SSLEAY_DIR));
++	if (engines)
++		{
++		ENGINE *e;
++		printf("engines:  ");
++		e = ENGINE_get_first();
++		while (e)
++			{
++			printf("%s ", ENGINE_get_id(e));
++			e = ENGINE_get_next(e);
++			}
++		printf("\n");
++		}
+ end:
+ 	apps_shutdown();
+ 	OPENSSL_EXIT(ret);

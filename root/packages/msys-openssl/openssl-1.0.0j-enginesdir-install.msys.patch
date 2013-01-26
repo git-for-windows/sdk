@@ -1,0 +1,16 @@
+--- origsrc/openssl-1.0.0j/engines/Makefile	2013-01-26 13:28:10 +0000
++++ src/openssl-1.0.0j/engines/Makefile	2013-01-26 14:26:05 +0000
+@@ -114,11 +114,11 @@ install:
+ 			  case "$(PLATFORM)" in \
+ 			  "Cygwin" ) \
+ 				sfx=".so"; \
+-				cp cyg$$l.dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
++				cp cyg$$l.dll $(INSTALL_PREFIX)$(ENGINESDIR)/$$pfx$$l$$sfx.new; \
+ 				;; \
+ 			  "MSys" ) \
+ 				sfx=".so"; \
+-				cp msys-$$l.dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
++				cp msys-$$l.dll $(INSTALL_PREFIX)$(ENGINESDIR)/$$pfx$$l$$sfx.new; \
+ 				;; \
+ 			  *) \
+ 				case "$(CFLAGS)" in \
