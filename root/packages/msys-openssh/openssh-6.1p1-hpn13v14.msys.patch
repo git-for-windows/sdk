@@ -1,0 +1,57 @@
+--- origsrc/openssh-6.1p1/Makefile.in	2013-02-04 16:18:07 +0000
++++ src/openssh-6.1p1/Makefile.in	2013-02-04 16:30:44 +0000
+@@ -43,7 +43,7 @@ CC=@CC@
+ LD=@LD@
+ CFLAGS=@CFLAGS@
+ CPPFLAGS=-I. -I$(srcdir) @CPPFLAGS@ $(PATHS) @DEFS@
+-LIBS=@LIBS@ -lpthread
++LIBS=@LIBS@
+ SSHLIBS=@SSHLIBS@
+ SSHDLIBS=@SSHDLIBS@
+ LIBEDIT=@LIBEDIT@
+--- origsrc/openssh-6.1p1/cipher-ctr-mt.c	2013-02-04 16:18:06 +0000
++++ src/openssh-6.1p1/cipher-ctr-mt.c	2013-02-04 16:26:53 +0000
+@@ -40,6 +40,17 @@
+ 
+ #include <pthread.h>
+ 
++// GCC 3.4 does not recognize this as a function pointer without the (*...) as done
++// in pthread.h
++typedef void (*__cleanup_routine_type_fixed) (void *);
++
++#undef pthread_cleanup_push
++#undef pthread_cleanup_pop
++
++#define pthread_cleanup_push(fn, arg) { __cleanup_routine_type_fixed __cleanup_routine=fn; \
++void *__cleanup_param=arg;
++#define pthread_cleanup_pop(execute) if (execute) __cleanup_routine(__cleanup_param); }
++
+ /*-------------------- TUNABLES --------------------*/
+ /* Number of pregen threads to use */
+ #define CIPHER_THREADS	2
+@@ -154,10 +165,10 @@ ssh_ctr_inc(u_char *ctr, u_int len)
+  * Add num to counter 'ctr'
+  */
+ static void
+-ssh_ctr_add(u_char *ctr, uint32_t num, u_int len)
++ssh_ctr_add(u_char *ctr, u_int32_t num, u_int len)
+ {
+ 	int i;
+-	uint16_t n;
++	u_int16_t n;
+ 
+ 	for (n = 0, i = len - 1; i >= 0 && (num || n); i--) {
+ 		n = ctr[i] + (num & 0xff) + n;
+@@ -320,9 +331,9 @@ ssh_aes_ctr(EVP_CIPHER_CTX *ctx, u_char
+ 		dest[14] = src[14] ^ buf[14];
+ 		dest[15] = src[15] ^ buf[15];
+ #else
+-		*(uint64_t *)dest = *(uint64_t *)src ^ *(uint64_t *)buf;
+-		*(uint64_t *)(dest + 8) = *(uint64_t *)(src + 8) ^
+-						*(uint64_t *)(buf + 8);
++		*(u_int64_t *)dest = *(u_int64_t *)src ^ *(u_int64_t *)buf;
++		*(u_int64_t *)(dest + 8) = *(u_int64_t *)(src + 8) ^
++						*(u_int64_t *)(buf + 8);
+ #endif
+ 
+ 		dest += 16;

@@ -1,0 +1,144 @@
+DESCRIPTION="OpenSSH is a 100% complete SSH protocol version 1.3, 1.5 and 2.0
+implementation and includes sftp client and server support."
+HOMEPAGE="http://www.openssh.org"
+SRC_URI="http://ftp.spline.de/pub/OpenBSD/OpenSSH/portable/${PN}-${PV}.tar.gz"
+
+PKG_NAMES="${PN} ${PN} ${PN}"
+
+prefix=/usr
+
+PKG_COMPTYPES="bin doc lic"
+
+PKG_CONTENTS[0]="bin lib etc"
+PKG_CONTENTS[1]="share/man share/doc
+                 --exclude share/doc/${PN}/${PV}/LICENCE"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/LICENCE"
+
+MGWCONF_ARGS="--without-rpath \
+           --sysconfdir=/etc/ssh \
+           --with-mantype=man \
+           --with-libs=-lminires"
+
+CFLAGS="-O3 -fno-unit-at-a-time -s -mtune=i686"
+LDFLAGS="-Wl,--enable-auto-import"
+
+PATCH_URI="01-openssh-6.1p1-msys.patch
+           update-configure.patch
+      	   openssh-6.1p1-hpn13v14.patch
+           openssh-6.1p1-hpn13v14.msys.patch"
+
+
+do_textreadmode() {
+  if [ ! -f /usr/lib/textreadmode.o ] ; then
+    cat > ${B}/textreadmode.c <<-"EOF"
+    /* textreadmode.c
+
+       Copyright 2004 Red Hat, Inc.
+
+    This file is part of Cygwin.
+
+    This software is a copyrighted work licensed under the terms of the
+    Cygwin license.  Please consult the file "CYGWIN_LICENSE" for
+    details. */
+
+    #include <windows.h>
+    #include <sys/fcntl.h>
+    #include <sys/cygwin.h>
+
+    extern int _fmode;
+    void
+    cygwin_premain0 (int argc, char **argv, struct per_process *myself)
+    {
+      static struct __cygwin_perfile pf[] =
+        {
+          {"", O_RDONLY | O_TEXT},
+          {NULL, 0}
+        };
+      cygwin_internal (CW_PERFILE, pf);
+    }
+EOF
+    gcc -D__CYGWIN__ -o /usr/lib/textreadmode.o -c ${B}/textreadmode.c
+    rm -f ${B}/textreadmode.c
+  fi
+}
+
+prep() {
+  cd ${B}
+  do_textreadmode
+  # do this so that configure will use this
+  # location for ${piddir}.
+  mkdir -p /var/run
+}
+
+
+#OpenSSH has been configured with the following options:
+#                     User binaries: /usr/bin
+#                   System binaries: /usr/sbin
+#               Configuration files: /etc/ssh
+#                   Askpass program: /usr/lib/ssh-askpass
+#                      Manual pages: /usr/share/man/manX
+#                          PID file: /var/run
+#  Privilege separation chroot path: /var/empty
+#            sshd default user PATH: /usr/bin:/bin:/usr/sbin:/sbin
+#                    Manpage format: man
+#                       PAM support: no
+#                   OSF SIA support: no
+#                 KerberosV support: no
+#                   SELinux support: no
+#                 Smartcard support:
+#                     S/KEY support: no
+#              TCP Wrappers support: no
+#              MD5 password support: no
+#                   libedit support: no
+#  Solaris process contract support: no
+#           Solaris project support: no
+#       IP address in $DISPLAY hack: no
+#           Translate v4 in v6 hack: no
+#                  BSD Auth support: no
+#              Random number source: OpenSSL internal ONLY
+#             Privsep sandbox style: rlimit
+#
+#              Host: i686-pc-msys
+#          Compiler: gcc
+#    Compiler flags: -O3 -fno-unit-at-a-time -s -mtune=i686 -Wall -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat
+#-security -fno-strict-aliasing -D_FORTIFY_SOURCE=2 -fno-builtin-memset
+#Preprocessor flags:  -D__CYGWIN__
+#      Linker flags: -lcrypt
+#         Libraries: -lcrypto -lz  -lminires /usr/lib/textreadmode.o -lcrypt
+#
+#WARNING: the operating system that you are using does not
+#appear to support getpeereid(), getpeerucred() or the
+#SO_PEERCRED getsockopt() option. These facilities are used to
+#enforce security checks to prevent unauthorised connections to
+#ssh-agent. Their absence increases the risk that a malicious
+#user can connect to your agent.
+
+src_compile() {
+  prep
+  cd ${S}
+  mgwautoreconf
+  cd ${B}
+  mgwconf
+  mgwmake
+}
+
+src_test() {
+  cd ${B}
+  make tests
+}
+
+src_install() {
+  cd ${B}
+  mgwinstall
+
+  rm -f ${D}${prefix}/share/info/dir
+  rm -f ${D}${prefix}/sbin/sshd.exe
+  rm -f ${D}${prefix}/lib/sftp-server.exe
+  rm -f ${D}/etc/ssh/sshd_config
+  rm -f ${D}${prefix}/share/man/man8/sftp-server.8
+  rm -f ${D}${prefix}/share/man/man8/sshd.8
+  rm -f ${D}${prefix}/share/man/man5/sshd_config.5
+
+  mv -f ${D}/etc ${D}${prefix}/
+}
+
