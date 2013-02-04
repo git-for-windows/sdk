@@ -39,12 +39,3 @@
  
  # we can do this but it is not needed normally :-)
  #1.organizationName		= Second Organization Name (eg, company)
-@@ -145,7 +148,7 @@
- organizationalUnitName		= Organizational Unit Name (eg, section)
- #organizationalUnitName_default	=
- 
--commonName			= Common Name (eg, YOUR name)
-+commonName			= Common Name (eg, your name or your server\'s hostname)
- commonName_max			= 64
- 
- emailAddress			= Email Address
