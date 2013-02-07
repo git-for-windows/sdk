@@ -21,15 +21,6 @@ diff -urN openssl-1.0.0-bak/Configure openssl-1.0.0/Configure
  $exe_ext=".nlm" if ($target =~ /netware/);
  $exe_ext=".pm"  if ($target =~ /vos/);
  $openssldir="/usr/local/ssl" if ($openssldir eq "" and $prefix eq "");
-diff -urN openssl-1.0.0-bak/MSYS.README openssl-1.0.0/MSYS.README
---- openssl-1.0.0-bak/MSYS.README	1969-12-31 19:00:00 -0500
-+++ openssl-1.0.0/MSYS.README	2010-04-04 23:03:29 -0400
-@@ -0,0 +1,5 @@
-+This archive is a little different than the official tarball
-+on which it is based.  Because msys does not create symlinks,
-+the pre-existing symlinks in the original archive were all replaced
-+with the appropriate HARD links (which, on FAT or FAT32 drives,
-+are unpacked as copies).
 diff -urN openssl-1.0.0-bak/Makefile.org openssl-1.0.0/Makefile.org
 --- openssl-1.0.0-bak/Makefile.org	2010-01-27 11:06:58 -0500
 +++ openssl-1.0.0/Makefile.org	2010-04-04 23:13:21 -0400
@@ -290,45 +281,6 @@ diff -urN openssl-1.0.0-bak/engines/Makefile openssl-1.0.0/engines/Makefile
  			  chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
  			  mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx ); \
  		done; \
-diff -urN openssl-1.0.0-bak/test/newkey.pem openssl-1.0.0/test/newkey.pem
---- openssl-1.0.0-bak/test/newkey.pem	1969-12-31 19:00:00 -0500
-+++ openssl-1.0.0/test/newkey.pem	2010-04-06 22:11:49 -0400
-@@ -0,0 +1,9 @@
-+-----BEGIN RSA PRIVATE KEY-----
-+MIIBOwIBAAJBAMCWUpGVMFANN/7zZPnkmoQD6r3b+qPsM2iYhYUL69g6du3UdtRm
-+MY4mRTQ+fAiv4BPO23IWsDuwxrNCXrT3ep8CAwEAAQJARECB/qo6twQYRjiIHq/P
-+ut2QgbzGNPXuujDjkOVKrhRbm9yMeTDlEzxwjxwaDChovojU15vLBVbrozgWIoiN
-+IQIhAPtu4RnwIIb2IaY12rwj4KAqsGZKw+MzYpg2SgUiCcy5AiEAxBXR37osr/L6
-+X2xLiEBPbVVcaKv07fQ+6ovUu8Y3xhcCIQDcVpa9fEmE/D0QwzEknuxCcCaV/f8c
-+I/PLIAhN5z5fQQIhALSomdX0NMnjJrSWFT0yazuDgwFZNO+rse/s5xId/TL/AiBd
-+53S7oZ8y+P0+UHcBAJeNmXNQJbx4ZpNwQZt6BiZ94g==
-+-----END RSA PRIVATE KEY-----
-diff -urN openssl-1.0.0-bak/test/testkey.pem openssl-1.0.0/test/testkey.pem
---- openssl-1.0.0-bak/test/testkey.pem	1969-12-31 19:00:00 -0500
-+++ openssl-1.0.0/test/testkey.pem	2010-04-06 22:12:04 -0400
-@@ -0,0 +1,9 @@
-+-----BEGIN RSA PRIVATE KEY-----
-+MIIBOgIBAAJBALc9KlFXmojj0mZNj9P/mFuvzyDTh4oR+5ytNsIe7kplHbgVpDkn
-+6As630vogv6gIo5Ku0jcrBrooavNyzhBFokCAwEAAQJAZ9pq2Z9lHqDA5uqe0fDT
-+UWPbaSd6cm6uxKYHmw4c0Fx45LrZ76Oi2h6uk5gktCvUS8Bjnohboomnl6pXcA/c
-+AQIhAOePicgEwg2nnhGu3eDJsD44kzkbHfLMXz89jetqX6IZAiEAypQJhqueys0F
-+/9PNGVPdeRjCJ3xz8Ya9XSDhGa5nBfECIB4mRUVCwVVvzpf00bTT7ducGCcmTbbw
-+PzKHvDO7rOn5AiBxZS5z6OtpIBzkmF2teMl3eMltqveH0mF7mOUIKBzZMQIhAL5O
-+0by7VunzX0a9dnXze8geNLKH0LQZbFqDWmiPIXhX
-+-----END RSA PRIVATE KEY-----
-diff -urN openssl-1.0.0-bak/test/testreq.pem openssl-1.0.0/test/testreq.pem
---- openssl-1.0.0-bak/test/testreq.pem	1969-12-31 19:00:00 -0500
-+++ openssl-1.0.0/test/testreq.pem	2010-04-06 22:11:33 -0400
-@@ -0,0 +1,9 @@
-+-----BEGIN CERTIFICATE REQUEST-----
-+MIIBQjCB7QIBADCBhzELMAkGA1UEBhMCQVUxEzARBgNVBAgTClF1ZWVuc2xhbmQx
-+ETAPBgNVBAcTCEJyaXNiYW5lMRowGAYDVQQKExFDcnlwdFNvZnQgUHR5IEx0ZDET
-+MBEGA1UEAxMKRXJpYyBZb3VuZzEfMB0GCSqGSIb3DQEJARYQZWF5QG1pbmNvbS5v
-+ei5hdTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQC3PSpRV5qI49JmTY/T/5hbr88g
-+04eKEfucrTbCHu5KZR24FaQ5J+gLOt9L6IL+oCKOSrtI3Kwa6KGrzcs4QRaJAgMB
-+AAGgADANBgkqhkiG9w0BAQUFAANBAIShs0ZwTCWLktUlIkU3yJjiw8kMFk+Sb+EV
-+F35dMCJ7PK0vAhxVlgsIccp8LZ0iaHeW82R8mVbcERTTMO6Mu98=
-+-----END CERTIFICATE REQUEST-----
 diff -urN openssl-1.0.0-bak/tools/c_rehash openssl-1.0.0/tools/c_rehash
 --- openssl-1.0.0-bak/tools/c_rehash	2010-03-29 09:14:00 -0400
 +++ openssl-1.0.0/tools/c_rehash	2010-04-06 22:08:54 -0400
