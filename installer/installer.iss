@@ -60,6 +60,7 @@ const
                      + 'mingw32-libiconv '
                      + 'mingw32-libz '
                      + 'mingw32-mgwport '
+                     + 'mingw32-libexpat '
 
                      // Our own packages:
                      + 'mingw32-libopenssl '
