@@ -1,0 +1,31 @@
+DESCRIPTION="UnZip is an extraction utility for archives compressed in .zip format (also called \"zipfiles\")."
+HOMEPAGE="http://info-zip.org/"
+
+SRC_URI="ftp://ftp.info-zip.org/pub/infozip/src/${PN}${PV}.tgz"
+SRC_DIR="${PN}${PV}"
+
+PKG_NAMES="${PN} ${PN} ${PN}"
+
+PKG_COMPTYPES="bin doc lic"
+
+PKG_CONTENTS[0]="bin"
+PKG_CONTENTS[1]="share/doc
+                 --exclude share/doc/${PN}/${PV}/LICENSE"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/LICENSE"
+
+src_compile() {
+  lndirs
+  cd ${B}
+  make -f win32/Makefile.gcc
+}
+
+src_install() {
+ cd ${B} 
+ dobin unzip.exe
+ dobin funzip.exe
+ dobin unzipsfx.exe
+ 
+ dodoc unzip.txt funzip.txt unzipsfx.txt
+ dodoc INSTALL README BUGS MANUAL ToDo WHERE History.600
+}
+
