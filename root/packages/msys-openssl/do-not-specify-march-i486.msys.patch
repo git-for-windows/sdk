@@ -1,0 +1,11 @@
+--- origsrc/openssl-1.0.0j/Configure	2013-01-26 13:28:10 +0000
++++ src/openssl-1.0.0j/Configure	2013-01-26 13:29:42 +0000
+@@ -524,7 +524,7 @@ my %table=(
+ "debug-Cygwin", "gcc:-DTERMIOS -DL_ENDIAN -march=i486 -Wall -DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DOPENSSL_NO_ASM -g -Wformat -Wshadow -Wmissing-prototypes -Wmissing-declarations -Werror:::CYGWIN32:::${no_asm}:dlfcn:cygwin-shared:-D_WINDLL:-shared:.dll.a",
+ 
+ # MSYS
+-"MSys", "gcc:-DTERMIOS -DL_ENDIAN -D__CYGWIN__ -fomit-frame-pointer -O3 -march=i386 -mtune=i686 -Wall:::CYGWIN32:-Wl,--enable-auto-import :BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_asm}:coff:dlfcn:msys-shared:-D_WINDLL:-shared:.dll.a",
++"MSys", "gcc:-DTERMIOS -DL_ENDIAN -D__CYGWIN__ -fomit-frame-pointer -O3 -mtune=i686 -Wall:::CYGWIN32:-Wl,--enable-auto-import :BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_asm}:coff:dlfcn:msys-shared:-D_WINDLL:-shared:.dll.a",
+ "debug-MSys", "gcc:-DTERMIOS -DL_ENDIAN -D__CYGWIN__ -march=i386 -mtune=i686 -Wall -DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DOPENSSL_NO_ASM -g -Wformat -Wshadow -Wmissing-prototypes -Wmissing-declarations -Werror:::CYGWIN32:-Wl,--enable-auto-import::${no_asm}:dlfcn:msys-shared:-D_WINDLL:-shared -Wl,--enable-auto-import:.dll.a",
+ 
+ # NetWare from David Ward (dsward@novell.com)

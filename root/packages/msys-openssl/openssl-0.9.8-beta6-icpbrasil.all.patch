@@ -1,0 +1,59 @@
+--- openssl-1.0.0/crypto/x509v3/v3_alt.c	2005-05-11 05:45:36.000000000 +0200
++++ openssl-1.0.0/crypto/x509v3/v3_alt.c.oden	2005-07-05 15:13:32.285682900 +0200
+@@ -102,11 +102,55 @@
+ {
+ 	unsigned char *p;
+ 	char oline[256], htmp[5];
++
++	int rc = 0;
++	
++	/* see http://www.iti.gov.br/resolucoes/RESOLU__O_13_DE_26_04_2002.PDF
++	 * for the OID definitions and more details
++	 * All content is ASN.1 OCTET STRING
++	 */
++	/* person related */
++	const char oid_id_pf[] = "2.16.76.1.3.1"; /* person identification data as follows:
++						   * birth date: ddmmyyyy (8)
++						   * CPF number: (11)
++						   * PIS/PASEP number: (11)
++						   * RG number: (11)
++						   * RG emmitter and state: (6)
++						   */
++	const char oid_el_pf[] = "2.16.76.1.3.5"; /* Electoral data:
++						   * card number: (11)
++						   * electoral zone: (3)
++						   * electoral section: (4)
++						   * city and state: (22)
++						   */
++	/* company related */
++	const char oid_pj_id1[] = "2.16.76.1.3.4"; /* info about the person responsible for the company's certificate:
++						    * birth date: ddmmyyyy (8)
++						    * CPF number: (11)
++						    * PIS/PASEP number: (11)
++						    * RG number: (11)
++						    * RG emitter and state: (6)
++						    */
++	const char oid_pj_name[] = "2.16.76.1.3.2"; /* Name of the person responsible for the company's certificate */
++	const char oid_pj_cnpj[] = "2.16.76.1.3.3"; /* CNPJ number of the company*/
++
+ 	int i;
+ 	switch (gen->type)
+ 	{
+ 		case GEN_OTHERNAME:
+-		X509V3_add_value("othername","<unsupported>", &ret);
++		rc = OBJ_obj2txt(oline, sizeof(oline), gen->d.otherName->type_id, 1);
++		if (rc)
++			if ((!strncmp(oline, oid_id_pf, sizeof(oid_id_pf)))   ||
++			    (!strncmp(oline, oid_el_pf, sizeof(oid_el_pf)))   ||
++			    (!strncmp(oline, oid_pj_id1, sizeof(oid_pj_id1))) ||
++			    (!strncmp(oline, oid_pj_name, sizeof(oid_pj_name))) ||
++			    (!strncmp(oline, oid_pj_cnpj, sizeof(oid_pj_cnpj))))
++				/* FIXME: is that string always null terminated? */
++				X509V3_add_value("othername", gen->d.otherName->value->value.octet_string->data, &ret);
++			else
++				X509V3_add_value("othername","<unsupported>", &ret);
++		else
++			X509V3_add_value("othername","<unsupported>", &ret);
+ 		break;
+ 
+ 		case GEN_X400:

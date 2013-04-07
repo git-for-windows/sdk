@@ -1,0 +1,59 @@
+DESCRIPTION="The OpenSSL Project is a collaborative effort to develop a robust, commercial-grade, full-featured, and Open Source toolkit implementing the Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) protocols as well as a full-strength general purpose cryptography library."
+HOMEPAGE="http://www.openssl.org"
+SRC_URI="http://www.openssl.org/source/${PN}-${PV}.tar.gz"
+
+PKG_NAMES="${PN} ${PN} ${PN} lib${PN} lib${PN}"
+
+abi=1.0.0
+abiShort=100
+
+prefix=/usr
+openssldir=/var/ssl
+enginedir=/engines-${abi}
+
+PKG_COMPTYPES="bin doc lic dev dll-${abiShort}"
+
+PKG_CONTENTS[0]="bin
+                 --exclude=bin/*.dll
+                 var/ssl"
+PKG_CONTENTS[1]="share/man/man[157] share/doc
+                 --exclude share/doc/${PN}/${PV}/LICENSE"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/LICENSE"
+PKG_CONTENTS[3]="include lib/lib*.a share/man/man3 lib/pkgconfig"
+PKG_CONTENTS[4]="bin/*.dll lib/openssl${enginedir}"
+
+MAKEOPTS=-j1
+
+CONF_ARGS="--prefix=${D}${prefix} \
+           --openssldir=${openssldir} \
+           --enginesdir=${prefix}/lib/openssl${enginedir} \
+           enable-zlib enable-threads enable-shared"
+
+PATCH_URI="01-msys-initial.msys.patch
+           do-not-specify-march-i486.msys.patch
+           openssl-0.9.6-x509.all.patch
+           openssl-0.9.7-beta5-version-add-engines.all.patch
+           openssl-0.9.8a-enginesdir.patch-1.0.0.all.patch
+           openssl-0.9.8-beta6-icpbrasil.all.patch
+           openssl-0.9.8a-defaults.patch-1.0.0.all.patch
+           openssl-0.9.8e-crt.all.patch
+           openssl-1.0.0e-enginesdir-install.all.patch
+           openssl-1.0.0j-enginesdir-install.msys.patch"
+
+src_compile() {
+  lndirs
+  cd ${B}
+  ./config ${CONF_ARGS}
+  mgwmake
+}
+
+src_test() {
+  cd ${B}
+  make tests
+}
+
+src_install() {
+  cd ${B}
+  make install MANDIR=${prefix}/share/man INSTALL_PREFIX=${D} MANSUFFIX=ssl
+}
+

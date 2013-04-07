@@ -1,0 +1,240 @@
+diff -Nur old/openssh-6.1p1/Makefile.in new/openssh-6.1p1/Makefile.in
+--- old/openssh-6.1p1/Makefile.in	2012-04-04 01:27:58 +0000
++++ new/openssh-6.1p1/Makefile.in	2013-01-09 19:35:09 +0000
+@@ -58,6 +58,7 @@
+ LDFLAGS=-L. -Lopenbsd-compat/ @LDFLAGS@
+ EXEEXT=@EXEEXT@
+ MANFMT=@MANFMT@
++LN_S=cp -p
+ 
+ TARGETS=ssh$(EXEEXT) sshd$(EXEEXT) ssh-add$(EXEEXT) ssh-keygen$(EXEEXT) ssh-keyscan${EXEEXT} ssh-keysign${EXEEXT} ssh-pkcs11-helper$(EXEEXT) ssh-agent$(EXEEXT) scp$(EXEEXT) sftp-server$(EXEEXT) sftp$(EXEEXT)
+ 
+@@ -273,10 +274,10 @@
+ 	$(INSTALL) -m 644 sftp-server.8.out $(DESTDIR)$(mandir)/$(mansubdir)8/sftp-server.8
+ 	$(INSTALL) -m 644 ssh-keysign.8.out $(DESTDIR)$(mandir)/$(mansubdir)8/ssh-keysign.8
+ 	$(INSTALL) -m 644 ssh-pkcs11-helper.8.out $(DESTDIR)$(mandir)/$(mansubdir)8/ssh-pkcs11-helper.8
+-	-rm -f $(DESTDIR)$(bindir)/slogin
+-	ln -s ./ssh$(EXEEXT) $(DESTDIR)$(bindir)/slogin
++	-rm -f $(DESTDIR)$(bindir)/slogin$(EXEEXT)
++	(cd $(DESTDIR)$(bindir) && $(LN_S) ssh$(EXEEXT) slogin$(EXEEXT) )
+ 	-rm -f $(DESTDIR)$(mandir)/$(mansubdir)1/slogin.1
+-	ln -s ./ssh.1 $(DESTDIR)$(mandir)/$(mansubdir)1/slogin.1
++	(cd $(DESTDIR)/$(mandir)/$(mansubdir)1 && $(LN_S) ssh.1 slogin.1 )
+ 
+ install-sysconf:
+ 	if [ ! -d $(DESTDIR)$(sysconfdir) ]; then \
+@@ -376,7 +377,7 @@
+ 	BUILDDIR=`pwd`; \
+ 	[ -d `pwd`/regress ]  ||  mkdir -p `pwd`/regress; \
+ 	[ -f `pwd`/regress/Makefile ]  || \
+-	    ln -s `cd $(srcdir) && pwd`/regress/Makefile `pwd`/regress/Makefile ; \
++	    $(LN_S) `cd $(srcdir) && pwd`/regress/Makefile `pwd`/regress/Makefile ; \
+ 	TEST_SHELL="@TEST_SHELL@"; \
+ 	TEST_SSH_SSH="$${BUILDDIR}/ssh"; \
+ 	TEST_SSH_SSHD="$${BUILDDIR}/sshd"; \
+diff -Nur old/openssh-6.1p1/configure.ac new/openssh-6.1p1/configure.ac
+--- old/openssh-6.1p1/configure.ac	2012-07-06 01:49:30 +0000
++++ new/openssh-6.1p1/configure.ac	2013-01-09 19:35:09 +0000
+@@ -512,6 +512,23 @@
+ 	AC_DEFINE([SSH_IOBUFSZ], [65535], [Windows is sensitive to read buffer size])
+ 	AC_DEFINE([FILESYSTEM_NO_BACKSLASH], [1], [File names may not contain backslash characters]) 
+ 	;;
++*-*-msys*)
++	check_for_libcrypt_later=1
++	LIBS="$LIBS /usr/lib/textreadmode.o"
++	AC_DEFINE(HAVE_CYGWIN, 1, [Define if you are on Cygwin])
++	AC_DEFINE(USE_PIPES, 1, [Use PIPES instead of a socketpair()])
++	AC_DEFINE(DISABLE_SHADOW, 1,
++		[Define if you want to disable shadow passwords])
++	AC_DEFINE(NO_X11_UNIX_SOCKETS, 1,
++		[Define if X11 doesn't support AF_UNIX sockets on that system])
++	AC_DEFINE(NO_IPPORT_RESERVED_CONCEPT, 1,
++		[Define if the concept of ports only accessible to
++		superusers isn't known])
++	AC_DEFINE(DISABLE_FD_PASSING, 1,
++		[Define if your platform needs to skip post auth
++		file descriptor passing])
++	AC_DEFINE(SSH_IOBUFSZ, 65535, [Windows is sensitive to read buffer size])
++	;;
+ *-*-dgux*)
+ 	AC_DEFINE([IP_TOS_IS_BROKEN], [1],
+ 		[Define if your system choked on IP TOS setting])
+diff -Nur old/openssh-6.1p1/defines.h new/openssh-6.1p1/defines.h
+--- old/openssh-6.1p1/defines.h	2012-02-15 04:13:06 +0000
++++ new/openssh-6.1p1/defines.h	2013-01-09 19:35:09 +0000
+@@ -774,6 +774,12 @@
+ # undef HAVE_MMAP
+ #endif
+ 
++#ifdef __MSYS__
++#undef IOV_MAX
++#define IOV_MAX 1024
++#define SETGROUPS_NOOP
++#endif
++
+ #ifndef IOV_MAX
+ # if defined(_XOPEN_IOV_MAX)
+ #  define	IOV_MAX		_XOPEN_IOV_MAX
+diff -Nur old/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.c new/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.c
+--- old/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.c	2012-02-13 19:38:38 +0000
++++ new/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.c	2013-01-09 19:35:09 +0000
+@@ -105,4 +105,12 @@
+ 	xfree(p);
+ }
+ 
++#ifdef __MSYS__
++#include <ctype.h>
++# ifndef TM_YEAR_BASE
++#  define TM_YEAR_BASE      1900
++# endif
++#include "strptime.c"
++#endif
++
+ #endif /* HAVE_CYGWIN */
+diff -Nur old/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.h new/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.h
+--- old/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.h	2012-08-28 09:57:20 +0000
++++ new/openssh-6.1p1/openbsd-compat/bsd-cygwin_util.h	2013-01-09 19:35:10 +0000
+@@ -55,6 +55,10 @@
+ 
+ #define open binary_open
+ 
++#ifdef __MSYS__
++char * strptime(const char *buf, const char *fmt, struct tm *tm);
++#endif
++
+ #endif /* HAVE_CYGWIN */
+ 
+ #endif /* _BSD_CYGWIN_UTIL_H */
+diff -Nur old/openssh-6.1p1/openbsd-compat/bsd-misc.c new/openssh-6.1p1/openbsd-compat/bsd-misc.c
+--- old/openssh-6.1p1/openbsd-compat/bsd-misc.c	2010-11-08 22:26:24 +0000
++++ new/openssh-6.1p1/openbsd-compat/bsd-misc.c	2013-01-09 19:35:10 +0000
+@@ -25,6 +25,7 @@
+ # include <sys/time.h>
+ #endif
+ 
++#include <errno.h>
+ #include <string.h>
+ #include <signal.h>
+ #include <stdlib.h>
+@@ -134,6 +135,17 @@
+ }
+ #endif /* HAVE_TRUNCATE */
+ 
++#if !defined(HAVE_SETGROUPS) && defined(SETGROUPS_NOOP)
++/*
++ * MSYS setgroups should be a noop.
++ */
++int
++setgroups(size_t size, const gid_t *list)
++{
++	return (0);
++}
++#endif
++
+ #if !defined(HAVE_NANOSLEEP) && !defined(HAVE_NSLEEP)
+ int nanosleep(const struct timespec *req, struct timespec *rem)
+ {
+diff -Nur old/openssh-6.1p1/openbsd-compat/bsd-misc.h new/openssh-6.1p1/openbsd-compat/bsd-misc.h
+--- old/openssh-6.1p1/openbsd-compat/bsd-misc.h	2012-07-03 22:50:10 +0000
++++ new/openssh-6.1p1/openbsd-compat/bsd-misc.h	2013-01-09 19:35:10 +0000
+@@ -70,6 +70,10 @@
+ int truncate (const char *, off_t);
+ #endif /* HAVE_TRUNCATE */
+ 
++#if !defined(HAVE_SETGROUPS) && defined(SETGROUPS_NOOP)
++int setgroups(size_t, const gid_t *);
++#endif
++
+ #if !defined(HAVE_NANOSLEEP) && !defined(HAVE_NSLEEP)
+ #ifndef HAVE_STRUCT_TIMESPEC
+ struct timespec {
+diff -Nur old/openssh-6.1p1/openbsd-compat/bsd-openpty.c new/openssh-6.1p1/openbsd-compat/bsd-openpty.c
+--- old/openssh-6.1p1/openbsd-compat/bsd-openpty.c	2006-08-24 09:52:30 +0000
++++ new/openssh-6.1p1/openbsd-compat/bsd-openpty.c	2013-01-09 19:35:10 +0000
+@@ -121,6 +121,8 @@
+ 		return (-1);
+ 	}
+ 
++/* the following hunk is ok on real cygwin, but dies on msys */
++#ifndef HAVE_CYGWIN
+ 	/*
+ 	 * Try to push the appropriate streams modules, as described 
+ 	 * in Solaris pts(7).
+@@ -130,6 +132,7 @@
+ # ifndef __hpux
+ 	ioctl(*aslave, I_PUSH, "ttcompat");
+ # endif /* __hpux */
++#endif /* HAVE_CYGWIN */
+ 
+ 	return (0);
+ 
+diff -Nur old/openssh-6.1p1/regress/agent-ptrace.sh new/openssh-6.1p1/regress/agent-ptrace.sh
+--- old/openssh-6.1p1/regress/agent-ptrace.sh	2011-01-17 00:20:20 +0000
++++ new/openssh-6.1p1/regress/agent-ptrace.sh	2013-01-09 19:35:10 +0000
+@@ -5,7 +5,7 @@
+ 
+ if have_prog uname ; then
+ 	case `uname` in
+-	AIX|CYGWIN*|OSF1)
++	AIX|CYGWIN*|MSYS*|OSF1)
+ 		echo "skipped (not supported on this platform)"
+ 		exit 0
+ 		;;
+diff -Nur old/openssh-6.1p1/regress/sftp-cmds.sh new/openssh-6.1p1/regress/sftp-cmds.sh
+--- old/openssh-6.1p1/regress/sftp-cmds.sh	2012-07-02 15:06:50 +0000
++++ new/openssh-6.1p1/regress/sftp-cmds.sh	2013-01-09 19:35:10 +0000
+@@ -17,6 +17,23 @@
+ 	fi
+ done
+ 
++if have_prog uname
++then
++	case `uname` in
++	CYGWIN*)
++		os=cygwin
++		;;
++	MSYS*) # lie
++		os=msys
++		;;
++	*)
++		os=`uname`
++		;;
++	esac
++else
++	os="unknown"
++fi
++
+ # Path with embedded quote
+ QUOTECOPY=${COPY}".\"blah\""
+ QUOTECOPY_ARG=${COPY}'.\"blah\"'
+@@ -80,6 +97,7 @@
+ cmp $DATA ${COPY} || fail "corrupted copy after get"
+ 
+ if [ "$os" != "cygwin" ]; then
++if [ "$os" != "msys" ]; then
+ rm -f ${QUOTECOPY}
+ cp $DATA ${QUOTECOPY}
+ verbose "$tid: get filename with quotes"
+@@ -88,6 +106,7 @@
+ cmp ${COPY} ${QUOTECOPY} || fail "corrupted copy after get with quotes"
+ rm -f ${QUOTECOPY} ${COPY}
+ fi
++fi
+ 
+ rm -f "$SPACECOPY" ${COPY}
+ cp $DATA "$SPACECOPY"
+@@ -139,12 +158,14 @@
+ cmp $DATA ${COPY} || fail "corrupted copy after put"
+ 
+ if [ "$os" != "cygwin" ]; then
++if [ "$os" != "msys" ]; then
+ rm -f ${QUOTECOPY}
+ verbose "$tid: put filename with quotes"
+ echo "put $DATA \"$QUOTECOPY_ARG\"" | \
+ 	${SFTP} -D ${SFTPSERVER} >/dev/null 2>&1 || fail "put failed"
+ cmp $DATA ${QUOTECOPY} || fail "corrupted copy after put with quotes"
+ fi
++fi
+ 
+ rm -f "$SPACECOPY"
+ verbose "$tid: put filename with spaces"

@@ -1,0 +1,335 @@
+diff -urN openssl-1.0.0-bak/Configure openssl-1.0.0/Configure
+--- openssl-1.0.0-bak/Configure	2010-04-04 22:47:49 -0400
++++ openssl-1.0.0/Configure	2010-04-04 23:02:43 -0400
+@@ -521,6 +521,10 @@
+ "Cygwin", "gcc:-DTERMIOS -DL_ENDIAN -fomit-frame-pointer -O3 -march=i486 -Wall:::CYGWIN32::BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_asm}:coff:dlfcn:cygwin-shared:-D_WINDLL:-shared:.dll.a",
+ "debug-Cygwin", "gcc:-DTERMIOS -DL_ENDIAN -march=i486 -Wall -DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DOPENSSL_NO_ASM -g -Wformat -Wshadow -Wmissing-prototypes -Wmissing-declarations -Werror:::CYGWIN32:::${no_asm}:dlfcn:cygwin-shared:-D_WINDLL:-shared:.dll.a",
+ 
++# MSYS
++"MSys", "gcc:-DTERMIOS -DL_ENDIAN -D__CYGWIN__ -fomit-frame-pointer -O3 -march=i386 -mtune=i686 -Wall:::CYGWIN32:-Wl,--enable-auto-import :BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_asm}:coff:dlfcn:msys-shared:-D_WINDLL:-shared:.dll.a",
++"debug-MSys", "gcc:-DTERMIOS -DL_ENDIAN -D__CYGWIN__ -march=i386 -mtune=i686 -Wall -DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DOPENSSL_NO_ASM -g -Wformat -Wshadow -Wmissing-prototypes -Wmissing-declarations -Werror:::CYGWIN32:-Wl,--enable-auto-import::${no_asm}:dlfcn:msys-shared:-D_WINDLL:-shared -Wl,--enable-auto-import:.dll.a",
++
+ # NetWare from David Ward (dsward@novell.com)
+ # requires either MetroWerks NLM development tools, or gcc / nlmconv
+ # NetWare defaults socket bio to WinSock sockets. However,
+@@ -1040,7 +1044,7 @@
+ 
+ my $IsMK1MF=scalar grep /^$target$/,@MK1MF_Builds;
+ 
+-$exe_ext=".exe" if ($target eq "Cygwin" || $target eq "DJGPP" || $target =~ /^mingw/);
++$exe_ext=".exe" if ($target eq "Cygwin" || $target eq "MSys" || $target eq "DJGPP" || $target =~ /^mingw/);
+ $exe_ext=".nlm" if ($target =~ /netware/);
+ $exe_ext=".pm"  if ($target =~ /vos/);
+ $openssldir="/usr/local/ssl" if ($openssldir eq "" and $prefix eq "");
+diff -urN openssl-1.0.0-bak/Makefile.org openssl-1.0.0/Makefile.org
+--- openssl-1.0.0-bak/Makefile.org	2010-01-27 11:06:58 -0500
++++ openssl-1.0.0/Makefile.org	2010-04-04 23:13:21 -0400
+@@ -286,6 +286,9 @@
+ 		if [ "$(PLATFORM)" = "Cygwin" ]; then \
+ 			( set -x; rm -f cyg$$i$(SHLIB_EXT) lib$$i$(SHLIB_EXT).a ); \
+ 		fi; \
++		if [ "$(PLATFORM)" = "MSys" ]; then \
++			( set -x; rm -f msys-$$i$(SHLIB_EXT) lib$$i$(SHLIB_EXT).a ); \
++		fi; \
+ 	done
+ 
+ link-shared:
+@@ -525,19 +528,31 @@
+ 		do \
+ 			if [ -f "$$i" -o -f "$$i.a" ]; then \
+ 			(       echo installing $$i; \
+-				if [ "$(PLATFORM)" != "Cygwin" ]; then \
++				case "$(PLATFORM)" in \
++				"Cygwin" ) \
++					c=`echo $$i | sed 's/^lib\(.*\)\.dll\.a/cyg\1-$(SHLIB_VERSION_NUMBER).dll/'`; \
++					cp $$c $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
++					chmod 755 $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
++					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c; \
+ 					cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new; \
+-					chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new; \
++					chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new; \
+ 					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i; \
+-				else \
+-					c=`echo $$i | sed 's/^lib\(.*\)\.dll\.a/cyg\1-$(SHLIB_VERSION_NUMBER).dll/'`; \
++					;; \
++				"MSys" ) \
++					c=`echo $$i | sed 's/^lib\(.*\)\.dll\.a/msys-\1-$(SHLIB_VERSION_NUMBER).dll/'`; \
+ 					cp $$c $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
+ 					chmod 755 $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new; \
+ 					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c.new $(INSTALL_PREFIX)$(INSTALLTOP)/bin/$$c; \
+ 					cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new; \
+ 					chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new; \
+ 					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/$$i; \
+-				fi ); \
++					;; \
++				* ) \
++					cp $$i $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
++					chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new; \
++					mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i.new $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i; \
++					;; \
++				esac ) ;\
+ 				if expr $(PLATFORM) : 'mingw' > /dev/null; then \
+ 				(	case $$i in \
+ 						*crypto*) i=libeay32.dll;; \
+@@ -597,7 +612,7 @@
+ 	@pod2man="`cd ./util; ./pod2mantest $(PERL)`"; \
+ 	here="`pwd`"; \
+ 	filecase=; \
+-	if [ "$(PLATFORM)" = "DJGPP" -o "$(PLATFORM)" = "Cygwin" -o "$(PLATFORM)" = "mingw" ]; then \
++	if [ "$(PLATFORM)" = "DJGPP" -o "$(PLATFORM)" = "Cygwin" -o "$(PLATFORM)" = "mingw" -o "$(PLATFORM)" = "MSys" ]; then \
+ 		filecase=-i; \
+ 	fi; \
+ 	set -e; for i in doc/apps/*.pod; do \
+diff -urN openssl-1.0.0-bak/Makefile.shared openssl-1.0.0/Makefile.shared
+--- openssl-1.0.0-bak/Makefile.shared	2009-10-15 19:44:11 -0400
++++ openssl-1.0.0/Makefile.shared	2010-04-06 21:47:15 -0400
+@@ -17,7 +17,7 @@
+ NM=nm
+ 
+ # LIBNAME contains just the name of the library, without prefix ("lib"
+-# on Unix, "cyg" for certain forms under Cygwin...) or suffix (.a, .so,
++# on Unix, "cyg" or "msys-" for certain forms under Cygwin and MSys...) or suffix (.a, .so,
+ # .dll, ...).  This one MUST have a value when using this makefile to
+ # build shared libraries.
+ # For example, to build libfoo.so, you need to do the following:
+@@ -299,6 +299,62 @@
+ 	fi; \
+ 	$(LINK_APP)
+ 
++link_o.msys:
++	@ $(CALC_VERSIONS); \
++	INHIBIT_SYMLINKS=yes; \
++	SHLIB=msys-$(LIBNAME); \
++	base=-Wl,--enable-auto-image-base; \
++	deffile=; \
++	if expr $(PLATFORM) : 'mingw' > /dev/null; then \
++		SHLIB=$(LIBNAME)eay32; base=; \
++		if test -f $(LIBNAME)eay32.def; then \
++			deffile=$(LIBNAME)eay32.def; \
++		fi; \
++	fi; \
++	SHLIB_SUFFIX=.dll; \
++	LIBVERSION="$(LIBVERSION)"; \
++	SHLIB_SOVER=${LIBVERSION:+"-$(LIBVERSION)"}; \
++	ALLSYMSFLAGS='-Wl,--whole-archive'; \
++	NOALLSYMSFLAGS='-Wl,--no-whole-archive'; \
++	SHAREDFLAGS="$(CFLAGS) $(SHARED_LDFLAGS) -shared $$base $$deffile -Wl,-s,-Bsymbolic"; \
++	$(LINK_SO_O)
++#for mingw target if def-file is in use dll-name should match library-name
++link_a.msys:
++	@ $(CALC_VERSIONS); \
++	INHIBIT_SYMLINKS=yes; \
++	SHLIB=msys-$(LIBNAME); SHLIB_SOVER=-$(LIBVERSION); SHLIB_SUFFIX=.dll; \
++	dll_name=$$SHLIB$$SHLIB_SOVER$$SHLIB_SUFFIX; extras=; \
++	base=-Wl,--enable-auto-image-base; \
++	if expr $(PLATFORM) : 'mingw' > /dev/null; then \
++		case $(LIBNAME) in \
++			crypto) SHLIB=libeay;; \
++			ssl) SHLIB=ssleay;; \
++		esac; \
++		SHLIB_SOVER=32; \
++		extras="$(LIBNAME).def"; \
++		$(PERL) util/mkdef.pl 32 $$SHLIB > $$extras; \
++		base=; [ $(LIBNAME) = "crypto" ] && base=-Wl,--image-base,0x63000000; \
++	fi; \
++	dll_name=$$SHLIB$$SHLIB_SOVER$$SHLIB_SUFFIX; \
++	$(PERL) util/mkrc.pl $$dll_name | \
++		$(CROSS_COMPILE)windres -o rc.o; \
++	extras="$$extras rc.o"; \
++	ALLSYMSFLAGS='-Wl,--whole-archive'; \
++	NOALLSYMSFLAGS='-Wl,--no-whole-archive'; \
++	SHAREDFLAGS="$(CFLAGS) $(SHARED_LDFLAGS) -shared $$base -Wl,-s,-Bsymbolic -Wl,--out-implib,lib$(LIBNAME).dll.a $$extras"; \
++	[ -f apps/$$dll_name ] && rm apps/$$dll_name; \
++	[ -f test/$$dll_name ] && rm test/$$dll_name; \
++	$(LINK_SO_A) || exit 1; \
++	rm $$extras; \
++	cp -p $$dll_name apps/; \
++	cp -p $$dll_name test/
++link_app.msys:
++	@if expr "$(CFLAGS)" : '.*OPENSSL_USE_APPLINK' > /dev/null; then \
++		LIBDEPS="$(TOP)/crypto/applink.o $${LIBDEPS:-$(LIBDEPS)}"; \
++		export LIBDEPS; \
++	fi; \
++	$(LINK_APP)
++
+ link_o.alpha-osf1:
+ 	@ if $(DETECT_GNU_LD); then \
+ 		$(DO_GNU_SO); \
+@@ -579,7 +635,7 @@
+ 	expr $(PLATFORM) : '.*ia64' > /dev/null && SHLIB=lib$(LIBNAME).so; \
+ 	$(SYMLINK_SO)
+ # The following lines means those specific architectures do no symlinks
+-symlink.cygwin symlink.alpha-osf1 symlink.tru64 symlink.tru64-rpath symlink.beos:
++symlink.cygwin symlink.msys symlink.alpha-osf1 symlink.tru64 symlink.tru64-rpath symlink.beos:
+ 
+ # Compatibility targets
+ link_o.bsd-gcc-shared link_o.linux-shared link_o.gnu-shared: link_o.gnu
+@@ -597,6 +653,10 @@
+ link_a.cygwin-shared: link_a.cygwin
+ link_app.cygwin-shared: link_app.cygwin
+ symlink.cygwin-shared: symlink.cygwin
++link_o.msys-shared: link_o.msys
++link_a.msys-shared: link_a.msys
++link_app.msys-shared: link_app.msys
++symlink.msys-shared: symlink.msys
+ link_o.alpha-osf1-shared: link_o.alpha-osf1
+ link_a.alpha-osf1-shared: link_a.alpha-osf1
+ link_app.alpha-osf1-shared: link_app.alpha-osf1
+diff -urN openssl-1.0.0-bak/apps/CA.pl openssl-1.0.0/apps/CA.pl
+--- openssl-1.0.0-bak/apps/CA.pl	2010-04-04 22:47:55 -0400
++++ openssl-1.0.0/apps/CA.pl	2010-04-06 21:47:57 -0400
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ #
+ # CA - wrapper around ca to make it easier to use ... basically ca requires
+ #      some setup stuff to be done before you can use it and this makes
+diff -urN openssl-1.0.0-bak/apps/CA.pl.in openssl-1.0.0/apps/CA.pl.in
+--- openssl-1.0.0-bak/apps/CA.pl.in	2006-04-27 20:30:49 -0400
++++ openssl-1.0.0/apps/CA.pl.in	2010-04-06 21:47:51 -0400
+@@ -1,4 +1,4 @@
+-#!/usr/local/bin/perl
++#!/bin/perl
+ #
+ # CA - wrapper around ca to make it easier to use ... basically ca requires
+ #      some setup stuff to be done before you can use it and this makes
+diff -urN openssl-1.0.0-bak/config openssl-1.0.0/config
+--- openssl-1.0.0-bak/config	2010-03-09 12:08:39 -0500
++++ openssl-1.0.0/config	2010-04-06 21:49:05 -0400
+@@ -358,6 +358,9 @@
+ 	esac
+ 	exit 0
+ 	;;
++    MSYS*)
++	echo "${MACHINE}-whatever-msys"
++	;;
+ 
+     *"CRAY T3E")
+        echo "t3e-cray-unicosmk"; exit 0;
+@@ -804,6 +807,7 @@
+   mips-sony-newsos4) OUT="newsos4-gcc" ;;
+   *-*-cygwin_pre1.3) OUT="Cygwin-pre1.3" ;;
+   *-*-cygwin) OUT="Cygwin" ;;
++  *-*-msys) OUT="MSys" ;;
+   t3e-cray-unicosmk) OUT="cray-t3e" ;;
+   j90-cray-unicos) OUT="cray-j90" ;;
+   nsr-tandem-nsk) OUT="tandem-c89" ;;
+diff -urN openssl-1.0.0-bak/demos/engines/rsaref/Makefile openssl-1.0.0/demos/engines/rsaref/Makefile
+--- openssl-1.0.0-bak/demos/engines/rsaref/Makefile	2002-11-13 09:31:34 -0500
++++ openssl-1.0.0/demos/engines/rsaref/Makefile	2010-04-06 22:03:49 -0400
+@@ -36,6 +36,7 @@
+ 
+ darwin:		install $(SHLIB).darwin
+ cygwin:		install $(SHLIB).cygwin
++msys:		install $(SHLIB).msys
+ gnu:		install $(SHLIB).gnu
+ alpha-osf1:	install $(SHLIB).alpha-osf1
+ tru64:		install $(SHLIB).tru64
+@@ -67,6 +68,12 @@
+ 		SHAREDCMD='$(CC)'; \
+ 		$(LINK_SO)
+ 		touch $(SHLIB).cygwin
++$(SHLIB).msys:	$(LIB) install/librsaref.a
++		ALLSYMSFLAGS='--whole-archive' \
++		SHAREDFLAGS='-shared -Wl,-Bsymbolic -Wl,--out-implib,$(LIBNAME).dll.a' \
++		SHAREDCMD='$(CC)'; \
++		$(LINK_SO)
++		touch $(SHLIB).msys
+ $(SHLIB).gnu:	$(LIB) install/librsaref.a
+ 		ALLSYMSFLAGS='--whole-archive' \
+ 		SHAREDFLAGS='-shared -Wl,-soname=$(SHLIB)' \
+diff -urN openssl-1.0.0-bak/engines/Makefile openssl-1.0.0/engines/Makefile
+--- openssl-1.0.0-bak/engines/Makefile	2010-01-16 15:06:09 -0500
++++ openssl-1.0.0/engines/Makefile	2010-04-06 22:08:22 -0400
+@@ -99,7 +99,7 @@
+ 	@target=links; $(RECURSIVE_MAKE)
+ 
+ # XXXXX This currently only works on systems that use .so as suffix
+-# for shared libraries as well as for Cygwin which uses the
++# for shared libraries as well as for Cygwin/MSys which uses the
+ # dlfcn_name_converter and therefore stores the engines with .so suffix, too.
+ # XXXXX This was extended to HP-UX dl targets, which use .sl suffix.
+ # XXXXX This was extended to mingw targets, which use eay32.dll suffix without lib as prefix.
+@@ -111,7 +111,16 @@
+ 		for l in $(LIBNAMES); do \
+ 			( echo installing $$l; \
+ 			  pfx=lib; \
+-			  if [ "$(PLATFORM)" != "Cygwin" ]; then \
++			  case "$(PLATFORM)" in \
++			  "Cygwin" ) \
++				sfx=".so"; \
++				cp cyg$$l.dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
++				;; \
++			  "MSys" ) \
++				sfx=".so"; \
++				cp msys-$$l.dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
++				;; \
++			  *) \
+ 				case "$(CFLAGS)" in \
+ 				*DSO_BEOS*)	sfx=".so";;	\
+ 				*DSO_DLFCN*)	sfx=".so";;	\
+@@ -120,10 +129,8 @@
+ 				*)		sfx=".bad";;	\
+ 				esac; \
+ 				cp $$pfx$$l$$sfx $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
+-			  else \
+-				sfx=".so"; \
+-				cp cyg$$l.dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
+-			  fi; \
++				;; \
++			  esac; \
+ 			  chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new; \
+ 			  mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$$pfx$$l$$sfx ); \
+ 		done; \
+diff -urN openssl-1.0.0-bak/tools/c_rehash openssl-1.0.0/tools/c_rehash
+--- openssl-1.0.0-bak/tools/c_rehash	2010-03-29 09:14:00 -0400
++++ openssl-1.0.0/tools/c_rehash	2010-04-06 22:08:54 -0400
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ 
+ 
+ # Perl c_rehash script, scan all files in a directory
+diff -urN openssl-1.0.0-bak/tools/c_rehash.in openssl-1.0.0/tools/c_rehash.in
+--- openssl-1.0.0-bak/tools/c_rehash.in	2010-04-04 22:47:47 -0400
++++ openssl-1.0.0/tools/c_rehash.in	2010-04-06 22:08:47 -0400
+@@ -1,4 +1,4 @@
+-#!/usr/local/bin/perl
++#!/bin/perl
+ 
+ 
+ # Perl c_rehash script, scan all files in a directory
+diff -urN openssl-1.0.0-bak/engines/ccgost/Makefile openssl-1.0.0/engines/ccgost/Makefile
+--- openssl-1.0.0-bak/engines/ccgost/Makefile	2010-01-16 15:06:10.000000000 -0500
++++ openssl-1.0.0/engines/ccgost/Makefile	2010-04-06 23:19:22.887400000 -0400
+@@ -45,7 +45,16 @@
+ 		set -e; \
+ 		echo installing $(LIBNAME); \
+ 		pfx=lib; \
+-		if [ "$(PLATFORM)" != "Cygwin" ]; then \
++		case "$(PLATFORM)" in \
++		"Cygwin" ) \
++			sfx=".so"; \
++			cp cyg$(LIBNAME).dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new; \
++			;; \
++		"MSys" ) \
++			sfx=".so"; \
++			cp msys-$(LIBNAME).dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new; \
++			;; \
++		*) \
+ 			case "$(CFLAGS)" in \
+ 			*DSO_BEOS*) sfx=".so";; \
+ 			*DSO_DLFCN*) sfx=".so";; \
+@@ -54,10 +63,8 @@
+ 			*) sfx=".bad";; \
+ 			esac; \
+ 			cp $${pfx}$(LIBNAME)$$sfx $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new; \
+-		else \
+-			sfx=".so"; \
+-			cp cyg$(LIBNAME).dll $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new; \
+-		fi; \
++			;; \
++		esac; \
+ 		chmod 555 $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new; \
+ 		mv -f $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx.new $(INSTALL_PREFIX)$(INSTALLTOP)/$(LIBDIR)/engines/$${pfx}$(LIBNAME)$$sfx; \
+ 	fi

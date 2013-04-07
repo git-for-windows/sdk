@@ -1,0 +1,41 @@
+--- openssl-1.0.0/apps/openssl.cnf	2009-04-04 14:09:43.000000000 -0400
++++ openssl-1.0.0/apps/openssl.cnf	2010-04-06 22:38:47.817400000 -0400
+@@ -104,6 +104,7 @@
+ ####################################################################
+ [ req ]
+ default_bits		= 1024
++default_md		= sha1
+ default_keyfile 	= privkey.pem
+ distinguished_name	= req_distinguished_name
+ attributes		= req_attributes
+@@ -120,23 +121,25 @@
+ # nombstr : PrintableString, T61String (no BMPStrings or UTF8Strings).
+ # MASK:XXXX a literal mask value.
+ # WARNING: ancient versions of Netscape crash on BMPStrings or UTF8Strings.
+-string_mask = utf8only
++# we use PrintableString+UTF8String mask so if pure ASCII texts are used
++# the resulting certificates are compatible with Netscape
++string_mask = MASK:0x2002
+ 
+ # req_extensions = v3_req # The extensions to add to a certificate request
+ 
+ [ req_distinguished_name ]
+ countryName			= Country Name (2 letter code)
+-countryName_default		= AU
++countryName_default		= GB
+ countryName_min			= 2
+ countryName_max			= 2
+ 
+ stateOrProvinceName		= State or Province Name (full name)
+-stateOrProvinceName_default	= Some-State
++stateOrProvinceName_default	= Berkshire
+ 
+-localityName			= Locality Name (eg, city)
++localityName			= Newbury
+ 
+ 0.organizationName		= Organization Name (eg, company)
+-0.organizationName_default	= Internet Widgits Pty Ltd
++0.organizationName_default	= My Company Ltd
+ 
+ # we can do this but it is not needed normally :-)
+ #1.organizationName		= Second Organization Name (eg, company)

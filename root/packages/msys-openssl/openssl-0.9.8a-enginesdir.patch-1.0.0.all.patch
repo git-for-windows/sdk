@@ -1,0 +1,39 @@
+--- openssl-1.0.0/Configure	2010-04-06 22:34:17.466400000 -0400
++++ openssl-1.0.0/Configure	2010-04-06 22:43:12.503200000 -0400
+@@ -622,6 +622,7 @@
+ my $prefix="";
+ my $libdir="";
+ my $openssldir="";
++my $enginesdir="";
+ my $exe_ext="";
+ my $install_prefix= "$ENV{'INSTALL_PREFIX'}";
+ my $cross_compile_prefix="";
+@@ -833,6 +834,10 @@
+ 				{
+ 				$openssldir=$1;
+ 				}
++			elsif (/^--enginesdir=(.*)$/)
++				{
++				$enginesdir=$1;
++				}
+ 			elsif (/^--install.prefix=(.*)$/)
+ 				{
+ 				$install_prefix=$1;
+@@ -1053,7 +1058,7 @@
+ 
+ $openssldir=$prefix . "/ssl" if $openssldir eq "";
+ $openssldir=$prefix . "/" . $openssldir if $openssldir !~ /(^\/|^[a-zA-Z]:[\\\/])/;
+-
++$enginesdir="$prefix/lib/engines" if $enginesdir eq "";
+ 
+ print "IsMK1MF=$IsMK1MF\n";
+ 
+@@ -1673,7 +1678,7 @@
+ 		}
+ 	elsif	(/^#define\s+ENGINESDIR/)
+ 		{
+-		my $foo = "$prefix/$libdir/engines";
++		my $foo = "$enginesdir";
+ 		$foo =~ s/\\/\\\\/g;
+ 		print OUT "#define ENGINESDIR \"$foo\"\n";
+ 		}
