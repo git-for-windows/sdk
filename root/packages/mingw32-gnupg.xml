@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013041500">
+  <package-collection subsystem="mingw32">
+    <download-host
+      uri="https://dl.dropbox.com/u/6413030/mingwGitDevEnv/packages/mingw32-gnupg/%F" />
+
+    <package name="mingw32-gnupg">
+      <description lang="en" title="GnuPG is the GNU project's complete and free implementation of the OpenPGP standard as defined by RFC4880.">
+        <paragraph>GnuPG allows to encrypt and sign your data and communication, features a versatile key management system as well as access modules for all kinds of public key directories. GnuPG, also known as GPG, is a command line tool with features for easy integration with other applications. A wealth of frontend applications and libraries are available. Version 2 of GnuPG also provides support for S/MIME.
+        </paragraph>
+      </description>
+
+      <licence tarname="gnupg-%-mingw32-lic.tar.%" />
+      <source tarname="gnupg-%-mingw32-src.tar.%" />
+
+      <component class="bin">
+        <release tarname="gnupg-1.4.13-1-mingw32-bin.tar.lzma" />
+      </component>
+
+      <component class="doc">
+        <release tarname="gnupg-1.4.13-1-mingw32-doc.tar.lzma" />
+      </component>
+
+      <component class="lic">
+        <release tarname="gnupg-1.4.13-1-mingw32-lic.tar.lzma" />
+      </component>
+    </package>
+
+  </package-collection>
+</software-distribution>
+<!-- vim: set nocompatible expandtab fileformat=unix textwidth=80 tabstop=2 shiftwidth=2: -->

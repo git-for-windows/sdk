@@ -1,0 +1,27 @@
+DESCRIPTION="GnuPG is the GNU project's complete and free implementation of the OpenPGP standard as defined by RFC4880."
+HOMEPAGE="http://www.gnupg.org"
+SRC_URI="http://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnupg/${PN}-${PV}.tar.bz2
+         http://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnupg/${PN}-${PV}.tar.bz2.sig"
+
+PKG_NAMES="${PN} ${PN} ${PN}"
+
+PKG_COMPTYPES="bin doc lic"
+
+PKG_CONTENTS[0]="bin"
+PKG_CONTENTS[1]="share/doc share/man share/info
+                 --exclude share/doc/${PN}/${PV}/COPYING"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/COPYING"
+
+src_compile() {
+  cd ${B}
+  mgwconf
+  mgwmake
+}
+
+src_install() {
+  cd ${B}
+  mgwinstall
+  rm -rf ${D}/mingw/share/gnupg
+  mv -v ${D}/mingw/lib/gnupg/* ${D}/mingw/bin
+}
+

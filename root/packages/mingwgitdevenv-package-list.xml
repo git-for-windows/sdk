@@ -5,6 +5,7 @@
 
   <package-list catalogue="mingw32-curl" />
   <package-list catalogue="mingw32-git" />
+  <package-list catalogue="mingw32-gnupg" />
   <package-list catalogue="mingw32-openssl" />
   <package-list catalogue="mingw32-tcl" />
   <package-list catalogue="mingw32-tk" />
