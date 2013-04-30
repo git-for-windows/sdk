@@ -5,6 +5,8 @@ SRC_URI="http://curl.haxx.se/download/${PN}-${PV}.tar.gz
 
 PKG_NAMES="${PN} ${PN} ${PN} lib${PN} lib${PN}"
 
+PATCH_URI="0001-curl_schannel.c-Fixed-invalid-memory-access-during-S.patch"
+
 PKG_COMPTYPES="bin doc lic dev dll"
 
 PKG_CONTENTS[0]="bin/*.exe"

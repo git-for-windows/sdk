@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013021400">
+<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013043000">
   <package-collection subsystem="mingw32">
     <download-host uri="https://dl.bintray.com/content/sschuberth/mingwGitDevEnv/%F?direct" />
 
@@ -21,15 +21,15 @@
 
       <component class="bin">
         <!-- curl is linked statically, so there is no dependenpcy on "mingw32-libcurl-%-mingw32-%-dll.tar" -->
-        <release tarname="curl-7.29.0-1-mingw32-bin.tar.lzma"/>
+        <release tarname="curl-7.30.0-1-mingw32-bin.tar.lzma"/>
       </component>
 
       <component class="doc">
-        <release tarname="curl-7.29.0-1-mingw32-doc.tar.lzma" />
+        <release tarname="curl-7.30.0-1-mingw32-doc.tar.lzma" />
       </component>
 
       <component class="lic">
-        <release tarname="curl-7.29.0-1-mingw32-lic.tar.lzma" />
+        <release tarname="curl-7.30.0-1-mingw32-lic.tar.lzma" />
       </component>
     </package>
 
@@ -60,11 +60,11 @@
       <source tarname="curl-%-mingw32-%-src.tar.%" />
 
       <component class="dll">
-        <release tarname="libcurl-7.29.0-1-mingw32-dll.tar.lzma" />
+        <release tarname="libcurl-7.30.0-1-mingw32-dll.tar.lzma" />
       </component>
 
       <component class="dev">
-        <release tarname="libcurl-7.29.0-1-mingw32-dev.tar.lzma">
+        <release tarname="libcurl-7.30.0-1-mingw32-dev.tar.lzma">
           <requires eq="mingw32-libcurl-%-mingw32-%-dll.tar" />
         </release>
       </component>
