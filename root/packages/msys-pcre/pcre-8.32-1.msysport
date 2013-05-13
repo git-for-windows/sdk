@@ -1,0 +1,49 @@
+DESCRIPTION="The PCRE library is a set of functions that implement regular
+expression pattern matching using the same syntax and semantics as Perl 5. PCRE
+has its own native API, as well as a set of wrapper functions that correspond
+to the POSIX regular expression API. The PCRE library is free, even for
+building proprietary software."
+HOMEPAGE="http://www.pcre.org"
+
+SRC_URI="ftp://ftp.csx.cam.ac.uk/pub/software/programming/${PN}/${PN}-${PV}.tar.bz2
+         ftp://ftp.csx.cam.ac.uk/pub/software/programming/${PN}/${PN}-${PV}.tar.bz2.sig"
+
+abi=1
+PKG_NAMES="${PN} ${PN} ${PN} lib${PN}"
+PKG_COMPTYPES="bin doc lic dev"
+
+PKG_CONTENTS[0]="bin/*.exe"
+PKG_CONTENTS[1]="share/doc share/man
+                 --exclude share/doc/${PN}/${PV}/COPYING
+                 --exclude share/doc/${PN}/${PV}/LICENCE"
+PKG_CONTENTS[2]="share/doc/${PN}/${PV}/COPYING
+                 share/doc/${PN}/${PV}/LICENCE"
+PKG_CONTENTS[3]="lib include bin/pcre-config"
+
+MGWCONF_ARGS="--enable-newline-is-any
+              --enable-shared
+              --enable-static
+              --enable-utf
+              --enable-pcre8
+              --enable-pcre16
+              --enable-pcre32
+              --disable-stack-for-recursion
+              --enable-unicode-properties
+              --enable-pcregrep-libz"
+
+src_compile() {
+  cd ${B}
+  mgwconf
+  mgwmake
+}
+
+src_test() {
+  cd ${B}
+  mgwmake test
+}
+
+src_install() {
+  cd ${B}
+  mgwinstall
+}
+

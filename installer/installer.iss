@@ -105,6 +105,9 @@ const
                         + 'msys-rsync '
                         + 'msys-vim '
                         + 'msys-zlib '
+                        + 'msys-cvs '
+
+                        + 'mingw32-gcc-g++ '
 
                         + 'mingw32-gnupg '
                         ;
