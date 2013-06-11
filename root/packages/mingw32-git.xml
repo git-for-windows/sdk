@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013032000">
+<software-distribution project="mingwGitDevEnv" home="https://github.com/sschuberth/mingwGitDevEnv" issue="2013061100">
   <package-collection subsystem="mingw32">
     <download-host uri="https://dl.bintray.com/content/sschuberth/mingwGitDevEnv/%F?direct" />
 
@@ -20,7 +20,7 @@
       <source tarname="git-%-mingw32-%-src.tar.%" />
 
       <component class="bin">
-        <release tarname="git-1.8.1-1-mingw32-bin.tar.lzma" />
+        <release tarname="git-1.8.3-0-mingw32-bin.tar.lzma" />
       </component>
    </package>
 
