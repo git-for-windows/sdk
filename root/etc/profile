@@ -72,5 +72,3 @@ $ '
 
 alias clear=clsb
 
-cd "$HOME"
-
