@@ -34,11 +34,18 @@ fi
 
 if [ ! -d "$HOME" ]; then
   mkdir -p "$HOME"
-  cp /etc/inputrc.default "$HOME"/.inputrc
 fi
 
 if [ "x$HISTFILE" == "x/.bash_history" ]; then
   HISTFILE=$HOME/.bash_history
+fi
+
+if [ -z "$INPUTRC" ]; then
+  if [ -e ~/.inputrc ]; then
+    export INPUTRC=~/.inputrc
+  else
+    export INPUTRC=/etc/inputrc
+  fi
 fi
 
 export HOME LOGNAME MSYSTEM HISTFILE
