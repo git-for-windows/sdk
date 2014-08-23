@@ -28,13 +28,22 @@ else
 fi
 
 # Set up USER's home directory
-if [ -z "$HOME" ]; then
-  HOME="/home/$LOGNAME"
+if [ -z "$HOME" -o ! -d "$HOME" ]; then
+  HOME="$HOMEDRIVE$HOMEPATH"
+  if [ -z "$HOME" -o ! -d "$HOME" ]; then
+    HOME="$USERPROFILE"
+  fi
 fi
 
 if [ ! -d "$HOME" ]; then
-  mkdir -p "$HOME"
+  printf "\n\033[31mERROR: HOME directory '$HOME' doesn't exist!\033[m\n\n"
+  echo "You might want to set the environment variable HOME explicitly."
+  printf "\nFalling back to \033[31m/ ($(cd / && pwd -W))\033[m.\n\n"
+  HOME=/
 fi
+
+# normalize HOME to unix path
+HOME="$(cd "$HOME" ; pwd)"
 
 if [ "x$HISTFILE" == "x/.bash_history" ]; then
   HISTFILE=$HOME/.bash_history
