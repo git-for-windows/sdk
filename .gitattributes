@@ -1,3 +1,6 @@
 /root/etc/vimrc eol=lf
 /root/share/InnoSetup/ -text
 *.cmd eol=crlf
+*.vbs eol=crlf
+*.iss eol=lf
+*.sh  eol=lf
