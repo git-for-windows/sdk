@@ -42,7 +42,7 @@ Please see the separate [sdk-packages](https://github.com/git-for-windows/sdk-pa
 
 ## Getting in contact
 
-We now have a [mailing list](https://groups.google.com/group/git-win-sdk) for developers.
+We now have a [mailing list](https://groups.google.com/group/git-win-sdk) for developers.  Issues should be reported on the [git-for-windows/git tracker](https://github.com/git-for-windows/git/issues); mentioning "SDK" in the subject line is advisable.
 
 # TODOs (roughly in order of priority)
 
